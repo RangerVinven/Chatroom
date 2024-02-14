@@ -7,34 +7,41 @@ rooms = [Chatroom("Hello"), Chatroom("World"), Chatroom("Boo"), Chatroom("Test")
 def get_user_connections():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as soc:
         try:
+            # Listens on port 9999
             soc.bind(("127.0.0.1", 9999))
             soc.listen(10)
 
             while True:
+
+                # Sends the welcome message
                 connection, address =  soc.accept()
                 connection.sendall(b"Welcome to the Finlay-Daniel Chatroom Server! Which server would you like to join?\n")
 
-                # Sends the user the options for the room names
+                # Gets a list of the chatrooms
                 room_names = []
                 rooms_list = ""
                 for room in rooms:
                     rooms_list = rooms_list + room.getRoomName() + "\n"
                     room_names.append(room.getRoomName())
 
+                # Sends the list of the chatrooms
                 connection.sendall(rooms_list.encode("utf-8"))
+
+                # Recieves the user's chatroom choice
                 user_choice = connection.recv(1024).decode()
 
-                # Tells the user their choice is invalid
-                while user_choice not in room_names:
-                    connection.sendall("That room doesn't exist, please enter a valid option\n".encode("utf-8"))
-                    user_choice = connection.recv(1024).decode()
+                # Sends a "invalid room" message
+                # while user_choice not in room_names:
+                #     connection.sendall("That room doesn't exist, please enter a valid option\n".encode("utf-8"))
+                #     user_choice = connection.recv(1024).decode()
 
                 # Sends the port of the chosen chatroom
                 for room in rooms:
-                    if(room.getRoomName == user_choice):
-                        connection.sendall(str(room.getPort).encode("utf-8"))
+                    if(room.getRoomName() == user_choice):
+                        connection.sendall(str(room.getPort()).encode("utf-8"))
 
-                connection.close()
+                # Disconnects the user
+                # connection.close()
 
 
         except Exception as e:
