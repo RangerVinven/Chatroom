@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 from random import randint
 
 class Chatroom:
@@ -22,9 +23,32 @@ class Chatroom:
 
         while True:
             connection, address =  self.soc.accept()
-            self.clients.append((connection, address))
+            current_time = int(time.time())
+            self.clients.append((connection, address, current_time))
 
             connection.sendall("You've connected to {}! Welcome!\n".format(self.room_name).encode("utf-8"))
+
+            threading.Thread(target=self.listen_for_messages, args=(connection,current_time)).start()
+
+    def listen_for_messages(self, connection, id):
+        while True:
+            try:
+                user_message = connection.recv(1024)
+                
+                # Sends the message to all the clients
+                for client in self.clients:
+                    # client is a tuple of (connection, address)
+                    client[0].sendall(user_message)
+            
+            # If the user closes the program
+            except ConnectionResetError:
+                # Removes the client from the clients array
+                for i in range(len(self.clients) - 1):
+                    if(self.clients[i][2] == id):
+                        self.clients.pop(i)
+                        break
+
+                break
 
     def getClients(self):
         return self.clients
