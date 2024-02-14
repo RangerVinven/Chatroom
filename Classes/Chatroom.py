@@ -12,6 +12,7 @@ class Chatroom:
         self.room_name = room_name
         self.clients = []
         self.port = port
+        self.is_running = True
 
         self.server_thread = threading.Thread(target=self.startServer)
         self.server_thread.start()
@@ -21,7 +22,7 @@ class Chatroom:
         self.soc.bind(("127.0.0.1", self.port))
         self.soc.listen(10)
 
-        while True:
+        while self.is_running:
             connection, address =  self.soc.accept()
             current_time = int(time.time())
             self.clients.append((connection, address, current_time))
@@ -30,8 +31,11 @@ class Chatroom:
 
             threading.Thread(target=self.listen_for_messages, args=(connection,current_time)).start()
 
+        else:
+            return
+
     def listen_for_messages(self, connection, id):
-        while True:
+        while self.is_running:
             try:
                 user_message = connection.recv(1024)
                 
@@ -49,6 +53,9 @@ class Chatroom:
                         break
 
                 break
+        
+        else:
+            return
 
     def getClients(self):
         return self.clients
@@ -60,4 +67,10 @@ class Chatroom:
         return self.port
     
     def closeChatroom(self):
+        self.is_running = False
+
+        # Disconnects the clients
+        for client in self.clients:
+            client[0].close()
+
         self.soc.close()
