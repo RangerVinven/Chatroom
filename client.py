@@ -51,16 +51,43 @@ def connect_to_chatroom(port):
     # Loops and allows the user to send messages
     while True:
         message = input()
-        message = username + ": " + message
-        soc.sendall(message.encode("utf-8"))
+
+        if message not in ["!HELP", "!DISCONNECT", "!EXIT"]:
+            message = username + ": " + message
+            soc.sendall(message.encode("utf-8"))
+
+        else:
+            run_command(message, soc)
+
+# Runs a command
+def run_command(message, soc):
+    if message == "!HELP":
+        print('''
+!DISCONNECT - disconnects from the chatroom. Takes you back to the main menu.
+!EXIT - exits the program
+''')
+
+        
+    elif message == "!DISCONNECT":
+        soc.close()
+        connect_to_server()
+    
+    else:
+        soc.close()
+        exit()
+
 
 def receive_messages(soc, username):
     while True:
-        message = soc.recv(1024).decode()
+        try:
+            message = soc.recv(1024).decode()
 
-        # Only prints if the message is from another user
-        if not (message.split(":")[0] == username):
-            print(message)
+            # Only prints if the message is from another user
+            if not (message.split(":")[0] == username):
+                print(message)
+
+        except ConnectionAbortedError:
+            break
 
 if __name__ == "__main__":
     connect_to_server()
