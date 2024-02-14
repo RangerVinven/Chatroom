@@ -17,6 +17,7 @@ class Chatroom:
         self.server_thread = threading.Thread(target=self.startServer)
         self.server_thread.start()
 
+    # Listens and accepts connections
     def startServer(self):
         self.soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.soc.bind(("127.0.0.1", self.port))
@@ -34,6 +35,7 @@ class Chatroom:
         else:
             return
 
+    # Loops and broadcasts messages to all the connected users
     def listen_for_messages(self, connection, id):
         while self.is_running:
             try:
@@ -66,6 +68,7 @@ class Chatroom:
     def getPort(self):
         return self.port
     
+    # Shutsdown the chatroom
     def closeChatroom(self):
         self.is_running = False
 
