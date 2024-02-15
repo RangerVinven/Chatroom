@@ -4,6 +4,17 @@ from Classes.Chatroom import Chatroom
 
 rooms = [Chatroom("Hello"), Chatroom("World"), Chatroom("Boo"), Chatroom("Test")]
 
+# This project works in a couple steps:
+# 1. The chatroom "manager" runs server.py
+# 2. The server creates some chatrooms by default. All of which listen on a random port
+# 3. server.py listens for connections at port 9999
+# 4. When someone connects (the client) to port 9999, server.py sends a welcome message and the different chatrooms
+# 5. The client sends their chatroom of choice
+# 6. The server sends back the port number of that chatroom
+# 7. The client disconnects from port 9999 and reconnects with that port
+# 8. The client is able to send messages to the chatroom
+# 9. The chatroom is always listening for messages. When it recieves one, it sends it to all the connected users 
+
 def get_user_connections():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as soc:
         try:
@@ -15,7 +26,7 @@ def get_user_connections():
 
                 # Sends the welcome message
                 connection, address =  soc.accept()
-                connection.sendall(b"Welcome to the Finlay-Daniel Chatroom Server! Which server would you like to join?\n")
+                connection.sendall(b"Welcome to the Awesome Chatroom Server! Which server would you like to join?\n")
 
                 # Gets a list of the chatrooms
                 room_names = []
@@ -48,7 +59,7 @@ def get_user_connections():
             print(e)
             soc.close()
     
-
+# Gives the user managment options for the server and starts the listening thread
 def start_server():
     try:
 
