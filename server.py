@@ -3,7 +3,7 @@ import threading
 import multiprocessing
 from Classes.Chatroom import Chatroom
 
-rooms = [Chatroom("Hello"), Chatroom("World"), Chatroom("Boo"), Chatroom("Test")]
+rooms = [Chatroom("f"), Chatroom("Hello"), Chatroom("World"), Chatroom("Boo"), Chatroom("Test")]
 
 # This project works in a couple steps:
 # 1. The chatroom "manager" runs server.py
@@ -118,6 +118,7 @@ def start_server():
                 close_chatrooms()
 
                 print("Connection closed. Goodbye :)")
+
                 server_process.terminate()
                 exit()
 
