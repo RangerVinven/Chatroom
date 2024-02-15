@@ -82,12 +82,23 @@ def receive_messages(soc, username):
         try:
             message = soc.recv(1024).decode()
 
+            # Closes the program if the server shutdown
+            # If a user sends SERVER-SHUTDOWN, it'll send as username: SERVER-SHUTDOWN, therefore not triggering this statement
+            if message == "SERVER-SHUTDOWN":
+                print("Server shutdown")
+                break
+
             # Only prints if the message is from another user
             if not (message.split(":")[0] == username):
                 print(message)
 
         except ConnectionAbortedError:
             break
+
+        except ConnectionResetError:
+            break
+    
+    exit()
 
 if __name__ == "__main__":
     connect_to_server()
