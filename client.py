@@ -46,7 +46,7 @@ def connect_to_chatroom(port):
     print(welcome_message)
 
     # Starts a thread that listens for new messages
-    listening_thread = threading.Thread(target=receive_messages, args=(soc,username)).start()
+    threading.Thread(target=receive_messages, args=(soc,username)).start()
 
     # Loops and allows the user to send messages
     while True:
