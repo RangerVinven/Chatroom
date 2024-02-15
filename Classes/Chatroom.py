@@ -24,14 +24,18 @@ class Chatroom:
         self.soc.listen(10)
 
         while self.is_running:
-            connection, address =  self.soc.accept()
-            current_time = int(time.time())
-            self.clients.append((connection, address, current_time))
 
-            connection.sendall("You've connected to {}! Welcome!\n".format(self.room_name).encode("utf-8"))
+            try:
+                connection, address = self.soc.accept()
+                current_time = int(time.time())
+                self.clients.append((connection, address, current_time))
 
-            threading.Thread(target=self.listen_for_messages, args=(connection,current_time)).start()
+                connection.sendall("You've connected to {}! Welcome!\n".format(self.room_name).encode("utf-8"))
 
+                threading.Thread(target=self.listen_for_messages, args=(connection,current_time)).start()
+
+            except OSError:
+                return
         else:
             return
 
@@ -74,6 +78,8 @@ class Chatroom:
 
         # Disconnects the clients
         for client in self.clients:
+            print("Sending shutdown")
+            client[0].sendall(b"SERVER-SHUTDOWN")
             client[0].close()
 
         self.soc.close()
