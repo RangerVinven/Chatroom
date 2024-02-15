@@ -49,67 +49,70 @@ def get_user_connections():
             soc.close()
     
 
+def start_server():
+    try:
 
-try:
+        server_thread = threading.Thread(target=get_user_connections)
+        server_thread.start()
 
-    server_thread = threading.Thread(target=get_user_connections)
-    server_thread.start()
-
-    while True:
-        print('''
-    [1] List all rooms
-    [2] Create a room
-    [3] Delete a room
-    [4] Shutdown server
-            ''')
-        
-        # Gets the user's option
-        selected_option = input("Please enter your option: ")
-        while selected_option not in ["1", "2", "3", "4"]:
-            selected_option = input("Please enter your option: ")
-
-        selected_option = int(selected_option)
-
-        # List rooms
-        if(selected_option == 1):
-            if len(rooms) == 0:
-                print("There aren't any rooms")
+        while True:
+            print('''
+        [1] List all rooms
+        [2] Create a room
+        [3] Delete a room
+        [4] Shutdown server
+                ''')
             
+            # Gets the user's option
+            selected_option = input("Please enter your option: ")
+            while selected_option not in ["1", "2", "3", "4"]:
+                selected_option = input("Please enter your option: ")
+
+            selected_option = int(selected_option)
+
+            # List rooms
+            if(selected_option == 1):
+                if len(rooms) == 0:
+                    print("There aren't any rooms")
+                
+                else:
+                    for room in rooms:
+                        print("{} - {}".format(room.getRoomName(), room.getPort()))
+
+            # Create room
+            elif(selected_option == 2):
+                room_name = input("What's the new room's name: ")
+                rooms.append(Chatroom(room_name))
+
+            # Delete room
+            elif(selected_option == 3):
+                room_to_delete = input("Enter the name of the room you want deleted: ")
+                original_length = len(rooms)
+
+                # Deletes the selected room
+                for i in range(len(rooms)):
+                    if rooms[i].getRoomName() == room_to_delete:
+                        rooms[i].closeChatroom()
+                        rooms.pop(i)
+                        print("Room deleted")
+
+                        break
+
+                if len(rooms) == original_length:
+                    print("No rooms deleted")
+
+            # Shutdown server
             else:
                 for room in rooms:
-                    print("{} - {}".format(room.getRoomName(), room.getPort()))
+                    room.closeChatroom()
 
-        # Create room
-        elif(selected_option == 2):
-            room_name = input("What's the new room's name: ")
-            rooms.append(Chatroom(room_name))
+                print("Connection closed. Goodbye :)")
+                break
 
-        # Delete room
-        elif(selected_option == 3):
-            room_to_delete = input("Enter the name of the room you want deleted: ")
-            original_length = len(rooms)
+    except Exception as e:
+        print(e)
+        for room in rooms:
+            room.closeChatroom()
 
-            # Deletes the selected room
-            for i in range(len(rooms)):
-                if rooms[i].getRoomName() == room_to_delete:
-                    rooms[i].closeChatroom()
-                    rooms.pop(i)
-                    print("Room deleted")
-
-                    break
-
-            if len(rooms) == original_length:
-                print("No rooms deleted")
-
-        # Shutdown server
-        else:
-            for room in rooms:
-                room.closeChatroom()
-
-            print("Connection closed. Goodbye :)")
-            break
-
-except Exception as e:
-    print(e)
-    for room in rooms:
-        room.closeChatroom()
+if __name__ == "__main__":
+    start_server()
