@@ -1,5 +1,6 @@
 import socket
 import threading
+import multiprocessing
 from Classes.Chatroom import Chatroom
 
 rooms = [Chatroom("Hello"), Chatroom("World"), Chatroom("Boo"), Chatroom("Test")]
@@ -63,8 +64,8 @@ def get_user_connections():
 def start_server():
     try:
 
-        server_thread = threading.Thread(target=get_user_connections)
-        server_thread.start()
+        server_process = multiprocessing.Process(target=get_user_connections)
+        server_process.start()
 
         while True:
             print('''
@@ -114,16 +115,21 @@ def start_server():
 
             # Shutdown server
             else:
-                for room in rooms:
-                    room.closeChatroom()
+                close_chatrooms()
 
                 print("Connection closed. Goodbye :)")
-                break
+                server_process.terminate()
+                exit()
 
     except Exception as e:
-        print(e)
-        for room in rooms:
-            room.closeChatroom()
+        close_chatrooms()
+        server_process.terminate()
+        exit()
+
+# Closes all the chatrooms
+def close_chatrooms():
+    for room in rooms:
+        room.closeChatroom()
 
 if __name__ == "__main__":
     start_server()
