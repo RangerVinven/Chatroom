@@ -46,21 +46,59 @@ def connect_to_chatroom(port):
     print(welcome_message)
 
     # Starts a thread that listens for new messages
-    listening_thread = threading.Thread(target=receive_messages, args=(soc,username)).start()
+    threading.Thread(target=receive_messages, args=(soc,username)).start()
 
     # Loops and allows the user to send messages
     while True:
         message = input()
-        message = username + ": " + message
-        soc.sendall(message.encode("utf-8"))
+
+        if message not in ["!HELP", "!DISCONNECT", "!EXIT"]:
+            message = username + ": " + message
+            soc.sendall(message.encode("utf-8"))
+
+        else:
+            run_command(message, soc)
+
+# Runs a command
+def run_command(message, soc):
+    if message == "!HELP":
+        print('''
+!DISCONNECT - disconnects from the chatroom. Takes you back to the main menu.
+!EXIT - exits the program
+''')
+
+        
+    elif message == "!DISCONNECT":
+        soc.close()
+        connect_to_server()
+    
+    else:
+        soc.close()
+        exit()
+
 
 def receive_messages(soc, username):
     while True:
-        message = soc.recv(1024).decode()
+        try:
+            message = soc.recv(1024).decode()
 
-        # Only prints if the message is from another user
-        if not (message.split(":")[0] == username):
-            print(message)
+            # Closes the program if the server shutdown
+            # If a user sends SERVER-SHUTDOWN, it'll send as username: SERVER-SHUTDOWN, therefore not triggering this statement
+            if message == "SERVER-SHUTDOWN":
+                print("Server shutdown")
+                break
+
+            # Only prints if the message is from another user
+            if not (message.split(":")[0] == username):
+                print(message)
+
+        except ConnectionAbortedError:
+            break
+
+        except ConnectionResetError:
+            break
+    
+    exit()
 
 if __name__ == "__main__":
     connect_to_server()
