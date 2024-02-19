@@ -1,9 +1,14 @@
 import socket
-import threading
 import multiprocessing
 from Classes.Chatroom import Chatroom
 
-rooms = [Chatroom("f"), Chatroom("Hello"), Chatroom("World"), Chatroom("Boo"), Chatroom("Test")]
+rooms = [
+    Chatroom("Shuang"),
+    Chatroom("Azam"),
+    Chatroom("Ian"),
+    Chatroom("Paul"),
+    Chatroom("Chrissy")
+]
 
 # This project works in a couple steps:
 # 1. The chatroom "manager" runs server.py
@@ -25,7 +30,7 @@ def get_user_connections():
 
             while True:
 
-                # Sends the welcome message
+                # Accepts connections and sends the welcome message
                 connection, address =  soc.accept()
                 connection.sendall(b"Welcome to the Awesome Chatroom Server! Which server would you like to join?\n")
 
@@ -39,22 +44,13 @@ def get_user_connections():
                 # Sends the list of the chatrooms
                 connection.sendall(rooms_list.encode("utf-8"))
 
-                # Recieves the user's chatroom choice
+                # Receives the user's chatroom choice
                 user_choice = connection.recv(1024).decode()
-
-                # Sends a "invalid room" message
-                # while user_choice not in room_names:
-                #     connection.sendall("That room doesn't exist, please enter a valid option\n".encode("utf-8"))
-                #     user_choice = connection.recv(1024).decode()
 
                 # Sends the port of the chosen chatroom
                 for room in rooms:
                     if(room.getRoomName() == user_choice):
                         connection.sendall(str(room.getPort()).encode("utf-8"))
-
-                # Disconnects the user
-                # connection.close()
-
 
         except Exception as e:
             print(e)
@@ -64,6 +60,7 @@ def get_user_connections():
 def start_server():
     try:
 
+        # Starts a thread running get_user_connections
         server_process = multiprocessing.Process(target=get_user_connections)
         server_process.start()
 
@@ -104,10 +101,12 @@ def start_server():
                 # Deletes the selected room
                 for i in range(len(rooms)):
                     if rooms[i].getRoomName() == room_to_delete:
+                        
+                        # Deletes the chatroom
                         rooms[i].closeChatroom()
                         rooms.pop(i)
-                        print("Room deleted")
 
+                        print("Room deleted")
                         break
 
                 if len(rooms) == original_length:

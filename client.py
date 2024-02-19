@@ -7,11 +7,11 @@ def connect_to_server():
         # Connects to the server
         soc.connect(("127.0.0.1", 9999))
 
-        # Recieves the welcome message
+        # Receives the welcome message
         welcome_message = soc.recv(1024).decode()
         print(welcome_message)
 
-        # Recieves the list of chatrooms
+        # Receives the list of chatrooms
         chatrooms = soc.recv(1024).decode()
         print(chatrooms)
 
@@ -19,7 +19,7 @@ def connect_to_server():
         chatroom_to_join = input("Please enter the name of the room you wish to join: ")
         soc.sendall(chatroom_to_join.encode("utf-8"))
 
-        # Recieves the port of the chatroom
+        # Receives the port of the chatroom
         port = soc.recv(1024).decode()
 
         # Disconnects from the server and reconnects to the chatroom
@@ -39,9 +39,11 @@ def connect_to_server():
 def connect_to_chatroom(port):
     username = input("What do you want your username to be: ")
 
+    # Connects to the chatroom
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     soc.connect(("127.0.0.1", port))
 
+    # Receives and displays the welcome message
     welcome_message = soc.recv(1024).decode()
     print(welcome_message)
 
